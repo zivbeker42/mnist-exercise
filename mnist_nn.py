@@ -1,0 +1,36 @@
+"""Simple fully connected neural network for MNIST classification."""
+
+import torch
+from torch import nn
+
+
+class SimpleMNISTClassifier(nn.Module):
+    """Two-layer fully connected network for MNIST digits."""
+
+    def __init__(self, hidden_units: int = 128):
+        super().__init__()
+        self.flatten = nn.Flatten()
+        self.classifier = nn.Sequential(
+            nn.Linear(28 * 28, hidden_units),
+            nn.ReLU(),
+            nn.Linear(hidden_units, 10),
+        )
+        self.softmax = nn.Softmax(dim=1)
+
+    def forward(self, x: torch.Tensor, apply_softmax: bool = False) -> torch.Tensor:
+        x = self.flatten(x)
+        logits = self.classifier(x)
+        if apply_softmax:
+            return self.softmax(logits)
+        return logits
+
+
+def accuracy(predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+    """Compute the classification accuracy for logits and targets."""
+    predicted_labels = predictions.argmax(dim=1)
+    return (predicted_labels == targets).float().mean()
+
+
+def count_parameters(model: nn.Module) -> int:
+    """Return the number of trainable parameters in a model."""
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
