@@ -15,20 +15,21 @@ class SimpleMNISTClassifier(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_units, 10),
         )
-        self.softmax = nn.Softmax(dim=1)
 
-    def forward(self, x: torch.Tensor, apply_softmax: bool = False) -> torch.Tensor:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.flatten(x)
         logits = self.classifier(x)
-        if apply_softmax:
-            return self.softmax(logits)
         return logits
 
 
-def accuracy(predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-    """Compute the classification accuracy for logits and targets."""
-    predicted_labels = predictions.argmax(dim=1)
-    return (predicted_labels == targets).float().mean()
+def predict(logits: torch.Tensor) -> torch.Tensor:
+    """Return the predicted labels from logits."""
+    return logits.argmax(dim=1)
+
+
+def calc_accuracy(predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+    """Compute the classification accuracy for predictions and targets."""
+    return (predictions == targets).float().mean()
 
 
 def count_parameters(model: nn.Module) -> int:
